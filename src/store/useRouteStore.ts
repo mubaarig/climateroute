@@ -3,10 +3,24 @@ import { RouteOption } from '@/types/route';
 import { RouteService } from '@/services/routeService';
 import { ClimateCalculator } from '@/utils/climateCalculator';
 
-// ... existing interfaces ...
+interface RouteStore {
+  routes: RouteOption[];
+  selectedRoute: RouteOption | null;
+  origin: string;
+  destination: string;
+  isLoading: boolean;
+  calculateRoute: (origin: string, destination: string) => Promise<void>;
+  setSelectedRoute: (route: RouteOption | null) => void;
+}
 
-export const useRouteStore = create<RouteStore>((set, get) => ({
-  // ... existing state ...
+export const useRouteStore = create<RouteStore>((set) => ({
+  routes: [],
+  selectedRoute: null,
+  origin: '',
+  destination: '',
+  isLoading: false,
+
+  setSelectedRoute: (route) => set({ selectedRoute: route }),
 
   calculateRoute: async (origin: string, destination: string) => {
     set({ isLoading: true, routes: [], selectedRoute: null });
