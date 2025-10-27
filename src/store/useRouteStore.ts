@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { RouteOption } from '@/types/route';
 import { RouteService } from '@/services/routeService';
+import { ClimateCalculator } from '@/utils/climateCalculator';
 
 // ... existing interfaces ...
 
@@ -29,6 +30,7 @@ export const useRouteStore = create<RouteStore>((set, get) => ({
       }
 
       // Get additional data for climate scoring
+      // We use the start point for weather and elevation
       const [weatherData, elevationData] = await Promise.all([
         RouteService.getWeatherData(originCoords),
         RouteService.getElevationData(originCoords)
@@ -39,21 +41,41 @@ export const useRouteStore = create<RouteStore>((set, get) => ({
         const distance = route.distance; // meters
         const duration = route.duration; // seconds
         
-        // Mock climate factors - in real implementation, calculate based on real data
-        const traffic = Math.random() > 0.7 ? 'high' : Math.random() > 0.4 ? 'moderate' : 'low';
-        const elevation = Math.random() > 0.7 ? 'high' : Math.random() > 0.4 ? 'moderate' : 'low';
-        const weather = weatherData ? 
-          (weatherData.weather[0].main === 'Rain' ? 'unfavorable' : 'favorable') : 
-          'moderate';
+        // Calculate real climate factors
+        // Traffic: We don't have real traffic data, so we'll estimate based on the time of day and route popularity?
+        // For now, we'll use a random value but in a real app you might use historical traffic data
+        const traffic = Math.random(); // 0-1
 
-        // Calculate climate score based on factors
-        const baseScore = 70;
-        const trafficBonus = traffic === 'low' ? 15 : traffic === 'moderate' ? 5 : 0;
-        const elevationBonus = elevation === 'low' ? 10 : elevation === 'moderate' ? 5 : 0;
-        const weatherBonus = weather === 'favorable' ? 5 : 0;
-        
-        const climateScore = Math.min(95, baseScore + trafficBonus + elevationBonus + weatherBonus);
-        const co2Savings = (distance / 1000) * 0.1 * (climateScore / 100);
+        // Elevation: use the elevation data
+        const elevation = elevationData?.results[0]?.elevation || 0;
+
+        // Weather: use the weather data
+        let weather = 0.5; // default
+        if (weatherData) {
+          // Convert weather condition to a score
+          const condition = weatherData.weather[0].main;
+          if (condition === 'Clear') {
+            weather = 1;
+          } else if (condition === 'Clouds') {
+            weather = 0.8;
+          } else if (condition === 'Rain') {
+            weather = 0.3;
+          } else if (condition === 'Snow') {
+            weather = 0.1;
+          } else {
+            weather = 0.5;
+          }
+        }
+
+        const factors = {
+          traffic,
+          elevation,
+          weather,
+          distance
+        };
+
+        const climateScore = ClimateCalculator.calculateClimateScore(factors);
+        const co2Savings = ClimateCalculator.calculateCO2Savings(distance, climateScore);
 
         return {
           id: `${index + 1}`,
@@ -64,9 +86,9 @@ export const useRouteStore = create<RouteStore>((set, get) => ({
           climateScore,
           co2Savings,
           factors: {
-            traffic,
-            elevation,
-            weather
+            traffic: traffic < 0.3 ? 'low' : traffic < 0.7 ? 'moderate' : 'high',
+            elevation: elevation < 100 ? 'low' : elevation < 300 ? 'moderate' : 'high',
+            weather: weather > 0.7 ? 'favorable' : weather > 0.4 ? 'moderate' : 'unfavorable'
           }
         };
       });
