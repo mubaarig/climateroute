@@ -23,6 +23,7 @@ function MapController({ onMapLoad }: { onMapLoad?: (map: L.Map) => void }) {
   const map = useMap();
   
   useEffect(() => {
+    // Invoke the provided callback once React Leaflet gives us the map instance.
     if (map && onMapLoad) {
       onMapLoad(map);
     }
@@ -39,6 +40,7 @@ export default function MapComponent({ onMapLoad, children }: MapComponentProps)
   const defaultZoom = 10;
 
   useEffect(() => {
+    // Defer rendering of the map until we're on the client to avoid SSR mismatch issues.
     setIsClient(true);
   }, []);
 
@@ -62,6 +64,7 @@ export default function MapComponent({ onMapLoad, children }: MapComponentProps)
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        {/* Allow parents to hook into the map instance and inject their own layers/controls. */}
         <MapController onMapLoad={onMapLoad} />
         {children}
       </MapContainer>
