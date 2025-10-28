@@ -9,7 +9,9 @@ const fetchRoutes = async (origin: string, destination: string) => {
 };
 
 export const useRoutes = (origin: string, destination: string) => {
-  return useQuery(['routes', origin, destination], () => fetchRoutes(origin, destination), {
-    enabled: !!origin && !!destination,
+  return useQuery({
+    queryKey: ['routes', origin, destination],
+    queryFn: () => fetchRoutes(origin, destination),
+    enabled: Boolean(origin) && Boolean(destination),
   });
 };
