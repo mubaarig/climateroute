@@ -5,7 +5,7 @@ import L from 'leaflet';
 import { RouteOption } from '@/types/route';
 
 // Custom route icons
-const createRouteIcon = (color: string) => {
+const createRouteIcon = (color: string): L.DivIcon => {
   return L.divIcon({
     html: `<div style="background-color: ${color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
     className: 'route-marker',
@@ -26,13 +26,16 @@ export default function RouteLayer({ routes, selectedRoute, onRouteSelect }: Rou
 
   useEffect(() => {
     // Add layer groups to map
-    routeLayersRef.current.addTo(map);
-    routeMarkersRef.current.addTo(map);
+    const routeLayerGroup = routeLayersRef.current;
+    const markerLayerGroup = routeMarkersRef.current;
+
+    routeLayerGroup.addTo(map);
+    markerLayerGroup.addTo(map);
 
     return () => {
       // Cleanup
-      map.removeLayer(routeLayersRef.current);
-      map.removeLayer(routeMarkersRef.current);
+      routeLayerGroup.removeFrom(map);
+      markerLayerGroup.removeFrom(map);
     };
   }, [map]);
 
@@ -51,8 +54,8 @@ export default function RouteLayer({ routes, selectedRoute, onRouteSelect }: Rou
       const routeWeight = isSelected ? 6 : 4;
 
       // Convert coordinates to LatLng tuples
-      const latLngs: L.LatLngExpression[] = route.coordinates.map(coord => 
-        [coord[1], coord[0]] as L.LatLngExpression
+      const latLngs: L.LatLngExpression[] = route.coordinates.map(
+        (coord) => [coord[1], coord[0]] as L.LatLngExpression
       );
 
       // Draw route polyline
@@ -60,8 +63,8 @@ export default function RouteLayer({ routes, selectedRoute, onRouteSelect }: Rou
         color: routeColor,
         weight: routeWeight,
         opacity: 0.8,
-        lineJoin: 'round' as any,
-        lineCap: 'round' as any,
+        lineJoin: 'round',
+        lineCap: 'round',
       });
 
       // Add click handler
@@ -100,15 +103,16 @@ export default function RouteLayer({ routes, selectedRoute, onRouteSelect }: Rou
     // Fit map to show all routes
     if (routes.length > 0 && routes[0].coordinates.length > 0) {
       const group = new L.FeatureGroup();
-      routes.forEach(route => {
+      routes.forEach((route) => {
         if (route.coordinates.length > 0) {
-          const latLngs = route.coordinates.map(coord => [coord[1], coord[0]] as L.LatLngExpression);
+          const latLngs = route.coordinates.map(
+            (coord) => [coord[1], coord[0]] as L.LatLngExpression
+          );
           group.addLayer(L.polyline(latLngs));
         }
       });
       map.fitBounds(group.getBounds().pad(0.1));
     }
-
   }, [routes, selectedRoute, map, onRouteSelect]);
 
   return null;

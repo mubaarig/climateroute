@@ -26,7 +26,7 @@ export default function RouteResults({ routes, selectedRoute, onRouteSelect }: R
         <MapPin className="h-5 w-5 mr-2 text-green-600" />
         Route Options
       </h3>
-      
+
       <div className="space-y-3">
         {routes.map((route) => (
           <div
@@ -45,7 +45,7 @@ export default function RouteResults({ routes, selectedRoute, onRouteSelect }: R
                 {route.climateScore}%
               </div>
             </div>
-            
+
             <div className="flex justify-between text-sm text-gray-600 mb-2">
               <div className="flex items-center">
                 <Clock className="h-4 w-4 mr-1" />
@@ -56,11 +56,11 @@ export default function RouteResults({ routes, selectedRoute, onRouteSelect }: R
                 {formatDistance(route.distance)}
               </div>
             </div>
-            
+
             <div className="text-xs text-gray-500">
               CO₂ Savings: <span className="font-medium">{route.co2Savings.toFixed(2)} kg</span>
             </div>
-            
+
             <div className="mt-2 flex space-x-2">
               {Object.entries(route.factors).map(([key, value]) => (
                 <div
@@ -69,8 +69,8 @@ export default function RouteResults({ routes, selectedRoute, onRouteSelect }: R
                     value === 'low' || value === 'favorable'
                       ? 'bg-green-100 text-green-800'
                       : value === 'high' || value === 'unfavorable'
-                      ? 'bg-red-100 text-red-800'
-                      : 'bg-yellow-100 text-yellow-800'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-yellow-100 text-yellow-800'
                   }`}
                 >
                   {key}: {value}

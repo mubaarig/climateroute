@@ -1,12 +1,12 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { LatLngExpression } from 'leaflet';
 
 // Fix for default markers in react-leaflet
 import L from 'leaflet';
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as Record<string, unknown>)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -21,7 +21,7 @@ interface MapComponentProps {
 // Component to handle map instance
 function MapController({ onMapLoad }: { onMapLoad?: (map: L.Map) => void }) {
   const map = useMap();
-  
+
   useEffect(() => {
     // Invoke the provided callback once React Leaflet gives us the map instance.
     if (map && onMapLoad) {
@@ -33,24 +33,9 @@ function MapController({ onMapLoad }: { onMapLoad?: (map: L.Map) => void }) {
 }
 
 export default function MapComponent({ onMapLoad, children }: MapComponentProps) {
-  const [isClient, setIsClient] = useState(false);
-  
   // Default center (New York)
-  const defaultCenter: LatLngExpression = [40.7128, -74.0060];
+  const defaultCenter: LatLngExpression = [40.7128, -74.006];
   const defaultZoom = 10;
-
-  useEffect(() => {
-    // Defer rendering of the map until we're on the client to avoid SSR mismatch issues.
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) {
-    return (
-      <div className="w-full h-full rounded-lg shadow-lg bg-gray-200 flex items-center justify-center">
-        <div className="text-gray-500">Loading map...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full h-full rounded-lg shadow-lg">

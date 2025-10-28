@@ -7,12 +7,7 @@ export interface ClimateFactors {
 
 export class ClimateCalculator {
   static calculateClimateScore(factors: ClimateFactors): number {
-    const {
-      traffic,
-      elevation,
-      weather,
-      distance
-    } = factors;
+    const { traffic, elevation, weather, distance } = factors;
 
     // Normalize factors (these weights can be adjusted)
     const trafficWeight = 0.3;
@@ -22,16 +17,16 @@ export class ClimateCalculator {
 
     // Calculate individual scores (higher is better)
     const trafficScore = (1 - traffic) * 100; // Less traffic = better
-    const elevationScore = Math.max(0, 100 - (elevation * 0.1)); // Less elevation gain = better
+    const elevationScore = Math.max(0, 100 - elevation * 0.1); // Less elevation gain = better
     const weatherScore = weather * 100; // Better weather = better
-    const distanceScore = Math.max(0, 100 - (distance / 1000)); // Shorter distance = better
+    const distanceScore = Math.max(0, 100 - distance / 1000); // Shorter distance = better
 
     // Weighted average
-    const totalScore = 
-      (trafficScore * trafficWeight) +
-      (elevationScore * elevationWeight) +
-      (weatherScore * weatherWeight) +
-      (distanceScore * distanceWeight);
+    const totalScore =
+      trafficScore * trafficWeight +
+      elevationScore * elevationWeight +
+      weatherScore * weatherWeight +
+      distanceScore * distanceWeight;
 
     return Math.min(100, Math.max(0, Math.round(totalScore)));
   }
@@ -40,7 +35,7 @@ export class ClimateCalculator {
     // Base CO2 emissions for average car: ~0.4 kg/km
     const baseEmissions = distance * 0.0004; // Convert to kg
     const savingsPercentage = climateScore / 100;
-    
+
     // Better routes can save up to 30% of emissions
     return baseEmissions * 0.3 * savingsPercentage;
   }
