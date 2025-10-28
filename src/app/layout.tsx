@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 
@@ -10,8 +10,6 @@ export const metadata: Metadata = {
     'Find the most fuel-efficient routes using real-time traffic, weather, and elevation data. Reduce your carbon footprint with intelligent route planning.',
   keywords: 'eco-friendly, route planning, carbon footprint, green travel, climate change',
   authors: [{ name: 'Your Name' }],
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-  themeColor: '#10b981',
   manifest: '/manifest.json',
   robots: 'index, follow',
   openGraph: {
@@ -20,6 +18,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#10b981',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
