@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 
 const fetchRoutes = async (origin: string, destination: string) => {
   const res = await fetch(`/api/routes?origin=${origin}&destination=${destination}`);

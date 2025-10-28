@@ -21,7 +21,7 @@ export default function SearchPanel({ onRouteCalculate, isLoading }: SearchPanel
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
       <h2 className="text-xl font-bold mb-4 text-gray-800">Plan Your Climate-Friendly Route</h2>
-      
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="relative">
           <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -33,7 +33,7 @@ export default function SearchPanel({ onRouteCalculate, isLoading }: SearchPanel
             className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
           />
         </div>
-        
+
         <div className="relative">
           <Navigation className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
           <input
@@ -44,7 +44,7 @@ export default function SearchPanel({ onRouteCalculate, isLoading }: SearchPanel
             className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
           />
         </div>
-        
+
         <button
           type="submit"
           disabled={isLoading || !origin || !destination}

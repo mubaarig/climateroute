@@ -11,7 +11,7 @@ interface CarbonBudgetProps {
 const formatNumber = (value: number, fractionDigits = 1) =>
   value.toLocaleString(undefined, {
     minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits
+    maximumFractionDigits: fractionDigits,
   });
 
 export default function CarbonBudget({ routeDistance, climateScore }: CarbonBudgetProps) {

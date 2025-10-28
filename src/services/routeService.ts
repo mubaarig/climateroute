@@ -15,7 +15,7 @@ export interface RouteResponse {
     legs: Array<{
       distance: number;
       duration: number;
-      steps: any[];
+      steps: [];
     }>;
   }>;
   waypoints: Array<{
@@ -30,11 +30,11 @@ export class RouteService {
       const response = await axios.get(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`
       );
-      
+
       if (response.data && response.data.length > 0) {
         return {
           lng: parseFloat(response.data[0].lon),
-          lat: parseFloat(response.data[0].lat)
+          lat: parseFloat(response.data[0].lat),
         };
       }
       return null;
@@ -44,13 +44,16 @@ export class RouteService {
     }
   }
 
-  static async calculateRoute(origin: Coordinates, destination: Coordinates): Promise<RouteResponse | null> {
+  static async calculateRoute(
+    origin: Coordinates,
+    destination: Coordinates
+  ): Promise<RouteResponse | null> {
     try {
       // Use OSRM API for routing (free)
       const response = await axios.get(
         `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson`
       );
-      
+
       return response.data;
     } catch (error) {
       console.error('Routing error:', error);
