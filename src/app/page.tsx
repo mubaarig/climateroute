@@ -44,13 +44,13 @@ export default function Home() {
     <div className="h-screen flex  content-center">
       {/* Sidebar */}
       <div className="w-full lg:w-96 bg-gray-50 p-4 overflow-y-auto ">
-        <div className="mb-4 ml-2">
+        <div className="mb-5 content-center">
           <Image
             src={'/logo.png'}
-            width={50} // Set to 0 as it will be controlled by CSS
+            width={150} // Set to 0 as it will be controlled by CSS
             height={50} // Set to 0 as it will be controlled by CSS
             sizes="100vw" // Recommended for responsive images
-            style={{ width: '100%', height: '50%' }}
+            style={{ width: '90%', height: '50%' }}
             alt={'Climate Routing'}
           />
         </div>
