@@ -5,9 +5,14 @@ import { Search, Navigation, MapPin } from 'lucide-react';
 interface SearchPanelProps {
   onRouteCalculate: (origin: string, destination: string) => void;
   isLoading?: boolean;
+  errorMessage?: string | null;
 }
 
-export default function SearchPanel({ onRouteCalculate, isLoading }: SearchPanelProps) {
+export default function SearchPanel({
+  onRouteCalculate,
+  isLoading,
+  errorMessage,
+}: SearchPanelProps) {
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
 
@@ -54,6 +59,12 @@ export default function SearchPanel({ onRouteCalculate, isLoading }: SearchPanel
           {isLoading ? 'Calculating...' : 'Find Green Route'}
         </button>
       </form>
+
+      {errorMessage && (
+        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {errorMessage}
+        </div>
+      )}
     </div>
   );
 }
