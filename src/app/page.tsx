@@ -25,7 +25,8 @@ const RouteLayer = dynamic(() => import('@/components/Map/RouteLayer'), {
 
 export default function Home() {
   const [map, setMap] = useState<L.Map | null>(null);
-  const { routes, selectedRoute, isLoading, calculateRoute, setSelectedRoute } = useRouteStore();
+  const { routes, selectedRoute, isLoading, calculateRoute, setSelectedRoute, error } =
+    useRouteStore();
 
   useEffect(() => {
     // Register service worker for PWA functionality
@@ -55,7 +56,11 @@ export default function Home() {
           />
         </div>
 
-        <SearchPanel onRouteCalculate={handleRouteCalculate} isLoading={isLoading} />
+        <SearchPanel
+          onRouteCalculate={handleRouteCalculate}
+          isLoading={isLoading}
+          errorMessage={error}
+        />
 
         {selectedRoute && (
           <>

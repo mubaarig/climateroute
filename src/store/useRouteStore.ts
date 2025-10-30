@@ -9,6 +9,7 @@ interface RouteStore {
   origin: string;
   destination: string;
   isLoading: boolean;
+  error: string | null;
   calculateRoute: (origin: string, destination: string) => Promise<void>;
   setSelectedRoute: (route: RouteOption | null) => void;
 }
@@ -19,11 +20,12 @@ export const useRouteStore = create<RouteStore>((set) => ({
   origin: '',
   destination: '',
   isLoading: false,
+  error: null,
 
   setSelectedRoute: (route) => set({ selectedRoute: route }),
 
   calculateRoute: async (origin: string, destination: string) => {
-    set({ isLoading: true, routes: [], selectedRoute: null });
+    set({ isLoading: true, routes: [], selectedRoute: null, error: null });
 
     try {
       // Geocode addresses
@@ -33,14 +35,35 @@ export const useRouteStore = create<RouteStore>((set) => ({
       ]);
 
       if (!originCoords || !destCoords) {
-        throw new Error('Could not find locations. Please try different addresses.');
+        set({
+          error:
+            'We could not locate one or both addresses. Try refining the origin and destination.',
+          origin,
+          destination,
+        });
+        return;
+      }
+
+       if (originCoords == destCoords) {
+        set({
+          error:
+          'No destination to calculate, distination should be different from start location.',
+          origin,
+          destination,
+        });
+        return;
       }
 
       // Calculate route
       const routeData = await RouteService.calculateRoute(originCoords, destCoords);
 
       if (!routeData || !routeData.routes.length) {
-        throw new Error('No route found between these locations.');
+        set({
+          error: 'No route found between these locations. Please try different points.',
+          origin,
+          destination,
+        });
+        return;
       }
 
       // Get additional data for climate scoring
@@ -115,10 +138,15 @@ export const useRouteStore = create<RouteStore>((set) => ({
         selectedRoute: routes[0],
         origin,
         destination,
+        error: null,
       });
     } catch (error) {
       console.error('Route calculation failed:', error);
-      throw error;
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Something went wrong while calculating the route.';
+      set({ error: message });
     } finally {
       set({ isLoading: false });
     }
