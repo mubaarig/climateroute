@@ -50,8 +50,16 @@ export default function RouteLayer({ routes, selectedRoute, onRouteSelect }: Rou
       if (route.coordinates.length < 2) return;
 
       const isSelected = selectedRoute?.id === route.id;
-      const routeColor = isSelected ? '#10b981' : '#6b7280';
-      const routeWeight = isSelected ? 6 : 4;
+      const isFastest = route.tags.includes('fastest');
+
+      // Selected route dominates; the fastest alternative is a distinct dashed
+      // blue line; remaining alternatives are muted and thin.
+      const style: L.PolylineOptions = isSelected
+        ? { color: '#10b981', weight: 6, opacity: 1 }
+        : isFastest
+          ? { color: '#3b82f6', weight: 4, opacity: 0.85, dashArray: '6 8' }
+          : { color: '#9ca3af', weight: 3, opacity: 0.6 };
+      const baseWeight = style.weight ?? 4;
 
       // Convert coordinates to LatLng tuples
       const latLngs: L.LatLngExpression[] = route.coordinates.map(
@@ -60,9 +68,7 @@ export default function RouteLayer({ routes, selectedRoute, onRouteSelect }: Rou
 
       // Draw route polyline
       const polyline = L.polyline(latLngs, {
-        color: routeColor,
-        weight: routeWeight,
-        opacity: 0.8,
+        ...style,
         lineJoin: 'round',
         lineCap: 'round',
       });
@@ -74,16 +80,17 @@ export default function RouteLayer({ routes, selectedRoute, onRouteSelect }: Rou
 
       // Change cursor on hover
       polyline.on('mouseover', () => {
-        polyline.setStyle({ weight: routeWeight + 2 });
+        polyline.setStyle({ weight: baseWeight + 2 });
         map.getContainer().style.cursor = 'pointer';
       });
 
       polyline.on('mouseout', () => {
-        polyline.setStyle({ weight: routeWeight });
+        polyline.setStyle({ weight: baseWeight });
         map.getContainer().style.cursor = '';
       });
 
       routeLayersRef.current.addLayer(polyline);
+      if (isSelected) polyline.bringToFront();
 
       // Add start and end markers
       if (latLngs.length > 0) {

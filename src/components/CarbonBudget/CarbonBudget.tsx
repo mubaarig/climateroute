@@ -1,77 +1,91 @@
 'use client';
 
-import { Leaf, Gauge, Factory } from 'lucide-react';
-import { ClimateCalculator } from '@/utils/climateCalculator';
+import { Leaf, Gauge, Factory, Smartphone, Car } from 'lucide-react';
+import { RouteOption, VehicleType } from '@/types/route';
+import { AVERAGE_PETROL_GRAMS_PER_KM, VEHICLE_PROFILES } from '@/utils/emissions';
 
 interface CarbonBudgetProps {
-  routeDistance: number;
-  climateScore: number;
+  route: RouteOption;
+  vehicle: VehicleType;
 }
 
-const formatNumber = (value: number, fractionDigits = 1) =>
+// Illustrative weekly transport carbon budget (kg CO2e) for context only.
+const WEEKLY_BUDGET_KG = 35;
+// Approx. CO2e to fully charge a smartphone (~8 g).
+const PHONE_CHARGE_KG = 0.008;
+
+const formatNumber = (value: number, digits = 1) =>
   value.toLocaleString(undefined, {
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   });
 
-export default function CarbonBudget({ routeDistance, climateScore }: CarbonBudgetProps) {
-  const distanceKm = routeDistance / 1000;
-  const baselineEmissionsKg = routeDistance * 0.0004;
-  const co2SavingsKg = ClimateCalculator.calculateCO2Savings(routeDistance, climateScore);
-  const netEmissionsKg = Math.max(0, baselineEmissionsKg - co2SavingsKg);
+export default function CarbonBudget({ route, vehicle }: CarbonBudgetProps) {
+  const distanceKm = route.distance / 1000;
+  const emissionsKg = route.emissionsKg;
+
+  const phoneCharges = emissionsKg / PHONE_CHARGE_KG;
+  const petrolEquivalentKm = (emissionsKg * 1000) / AVERAGE_PETROL_GRAMS_PER_KM;
+  const budgetShare = Math.min(100, (emissionsKg / WEEKLY_BUDGET_KG) * 100);
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
+    <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <Leaf className="h-5 w-5 text-green-600 mr-2" />
-          Carbon Budget
+        <h3 className="text-sm font-semibold text-gray-900 flex items-center">
+          <Leaf className="h-4 w-4 text-green-600 mr-2" aria-hidden />
+          Carbon impact
         </h3>
-        <span className="text-sm font-medium text-green-700 bg-green-100 px-3 py-1 rounded-full">
-          {climateScore}% eco score
+        <span className="text-xs font-medium text-green-700 bg-green-100 px-2.5 py-1 rounded-full">
+          {VEHICLE_PROFILES[vehicle].label}
         </span>
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-2 text-sm text-gray-600">
-          <span>Route footprint</span>
-          <span>{formatNumber(netEmissionsKg, 2)} kg CO2e</span>
+        <div className="flex items-baseline justify-between">
+          <span className="text-2xl font-bold text-gray-900">{formatNumber(emissionsKg, 2)}</span>
+          <span className="text-sm text-gray-500">kg CO₂e</span>
         </div>
-        <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
+        <div className="mt-2 flex items-center justify-between text-xs text-gray-500 mb-1">
+          <span>Share of illustrative weekly budget</span>
+          <span>{formatNumber(budgetShare, 0)}%</span>
+        </div>
+        <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
           <div
             className="absolute inset-y-0 left-0 bg-green-500"
-            style={{ width: `${Math.min(100, climateScore)}%` }}
+            style={{ width: `${budgetShare}%` }}
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-700">
-        <div className="flex items-start space-x-3">
-          <Gauge className="h-5 w-5 text-green-600 mt-0.5" />
+      <dl className="grid grid-cols-3 gap-3 text-sm">
+        <div className="flex items-start gap-2">
+          <Gauge className="h-4 w-4 text-green-600 mt-0.5" aria-hidden />
           <div>
-            <p className="font-medium">Distance</p>
-            <p className="text-gray-500">{formatNumber(distanceKm)} km</p>
+            <dt className="text-xs text-gray-500">Distance</dt>
+            <dd className="font-medium text-gray-800">{formatNumber(distanceKm)} km</dd>
           </div>
         </div>
+        <div className="flex items-start gap-2">
+          <Smartphone className="h-4 w-4 text-green-600 mt-0.5" aria-hidden />
+          <div>
+            <dt className="text-xs text-gray-500">Phone charges</dt>
+            <dd className="font-medium text-gray-800">{formatNumber(phoneCharges, 0)}×</dd>
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <Car className="h-4 w-4 text-green-600 mt-0.5" aria-hidden />
+          <div>
+            <dt className="text-xs text-gray-500">Petrol-car km</dt>
+            <dd className="font-medium text-gray-800">{formatNumber(petrolEquivalentKm)} km</dd>
+          </div>
+        </div>
+      </dl>
 
-        <div className="flex items-start space-x-3">
-          <Factory className="h-5 w-5 text-green-600 mt-0.5" />
-          <div>
-            <p className="font-medium">Avoided emissions</p>
-            <p className="text-gray-500">{formatNumber(co2SavingsKg, 2)} kg CO2e</p>
-          </div>
-        </div>
-
-        <div className="flex items-start space-x-3">
-          <Leaf className="h-5 w-5 text-green-600 mt-0.5" />
-          <div>
-            <p className="font-medium">Cleaner than typical</p>
-            <p className="text-gray-500">
-              {formatNumber((co2SavingsKg / (baselineEmissionsKg || 1)) * 100)}% savings
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+      <p className="flex items-start gap-1.5 text-[11px] text-gray-400">
+        <Factory className="h-3.5 w-3.5 mt-px shrink-0" aria-hidden />
+        Estimate uses {VEHICLE_PROFILES[vehicle].gramsPerKm} g CO₂e/km for a{' '}
+        {VEHICLE_PROFILES[vehicle].label.toLowerCase()} vehicle.
+      </p>
+    </section>
   );
 }
